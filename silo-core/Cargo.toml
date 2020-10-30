@@ -1,0 +1,8 @@
+[package]
+name = "silo-core"
+version = "0.1.0"
+authors = ["Tyler Lafayette <tylerlafayette@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+tokio = { version = "0.3", features = ["full"] }
