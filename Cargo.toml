@@ -1,5 +1,6 @@
 [workspace]
 
 members = [
+	"silo",
 	"silo-core",
 ]
