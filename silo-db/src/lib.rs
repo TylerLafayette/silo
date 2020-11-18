@@ -2,8 +2,5 @@
 
 //! Silo's core crate, containing an actor system and logging.
 
-/// The internal logging module.
-mod logging;
-
-/// The service module.
+/// The service of the database.
 pub mod service;
