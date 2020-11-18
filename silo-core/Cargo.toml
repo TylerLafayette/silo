@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 tokio = { version = "0.3", features = ["full"] }
+actix = "0.10"

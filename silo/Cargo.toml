@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 silo-core = { path = "../silo-core" }
+log = "0.4"
