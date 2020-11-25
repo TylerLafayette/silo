@@ -1,7 +1,23 @@
+use std::collections::HashMap;
+
+/// Specifies different output types for a matrix.
+pub enum MatrixOutputType {
+    Json,
+    Csv,
+    Tsv,
+}
+
 /// A builder for creating matrix transformers.
 pub struct MatrixTransformerBuilder {
     __binary_fields: Vec<String>,
     __int_fields: Vec<String>,
+    __output_type: MatrixOutputType,
+}
+
+/// Contains both int and binary field vectors.
+pub struct MatrixTransformerRow {
+    binary_fields: HashMap<String, bool>,
+    int_fields: HashMap<String, i16>,
 }
 
 impl MatrixTransformerBuilder {
@@ -10,6 +26,7 @@ impl MatrixTransformerBuilder {
         Self {
             __binary_fields: vec![],
             __int_fields: vec![],
+            __output_type: MatrixOutputType::Tsv,
         }
     }
 
@@ -22,6 +39,12 @@ impl MatrixTransformerBuilder {
     /// Adds a binary field to the matrix.
     fn with_binary_field(mut self, field_name: &str) -> Self {
         self.__binary_fields.push(field_name.into());
+        self
+    }
+
+    /// Sets the output type of the matrix with a MatrixOutputType enum.
+    fn output_as(mut self, output_type: MatrixOutputType) -> Self {
+        self.__output_type = output_type;
         self
     }
 
@@ -40,4 +63,7 @@ pub struct MatrixTransformer {
     int_fields: Vec<String>,
 }
 
-impl MatrixTransformer {}
+impl MatrixTransformer {
+    /// Generates and returns a matrix.
+    pub fn generate(self, rows: Vec<MatrixTransformerRow>) {}
+}
