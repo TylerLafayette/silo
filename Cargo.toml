@@ -4,4 +4,5 @@ members = [
 	"silo",
 	"silo-core",
 	"silo-db",
+	"silo-transform",
 ]
