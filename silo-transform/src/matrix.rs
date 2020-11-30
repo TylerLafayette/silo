@@ -11,6 +11,7 @@ pub enum MatrixOutputType {
 }
 
 /// Contains both int and binary field vectors.
+#[derive(Clone)]
 pub struct MatrixTransformerRow {
     binary_fields: HashMap<String, bool>,
     int_fields: HashMap<String, i16>,
@@ -30,6 +31,7 @@ pub struct MatrixTransformerBuilder {
     __binary_fields: Vec<String>,
     __int_fields: Vec<String>,
     __output_type: MatrixOutputType,
+    __with_header: bool,
 }
 
 impl MatrixTransformerBuilder {
@@ -39,6 +41,7 @@ impl MatrixTransformerBuilder {
             __binary_fields: vec![],
             __int_fields: vec![],
             __output_type: MatrixOutputType::Tsv,
+            __with_header: false,
         }
     }
 
@@ -60,12 +63,20 @@ impl MatrixTransformerBuilder {
         self
     }
 
+    /// Set whether or not to include a header row with the output data.
+    /// Only for spreadsheet-style formats like CSV and TSV.
+    pub fn with_header(mut self, header: bool) -> Self {
+        self.__with_header = header;
+        self
+    }
+
     /// Builds the MatrixTransformer.
     pub fn build(self) -> MatrixTransformer {
         MatrixTransformer {
             binary_fields: self.__binary_fields,
             int_fields: self.__int_fields,
             output_type: self.__output_type,
+            with_header: self.__with_header,
         }
     }
 }
@@ -75,20 +86,40 @@ pub struct MatrixTransformer {
     binary_fields: Vec<String>,
     int_fields: Vec<String>,
     output_type: MatrixOutputType,
+    with_header: bool,
 }
 
 impl MatrixTransformer {
     /// Generates and returns a matrix.
-    pub fn generate(self, rows: Vec<MatrixTransformerRow>) -> Result<String, std::io::Error> {
+    pub fn generate(&self, rows: Vec<MatrixTransformerRow>) -> Result<String, std::io::Error> {
         let mut matrix_output = String::from("");
 
-        rows.iter().for_each(|row| match self.output_type {
+        if (self.with_header) {
+            match &self.output_type {
+                Tsv => self.append_tsv_header(&mut matrix_output),
+            }
+        }
+
+        rows.iter().for_each(|row| match &self.output_type {
             // No support yet for types other than TSV.
             // TODO: implement those output types :)
             _ => self.append_tsv_row(&mut matrix_output, &row),
         });
 
         Ok(matrix_output)
+    }
+
+    /// Appends headers to a builder with a trailing newline.
+    fn append_tsv_header(&self, builder: &mut String) {
+        self.int_fields
+            .iter()
+            .for_each(|field_name| builder.push_str(&format!("{}\t", field_name)));
+
+        self.binary_fields
+            .iter()
+            .for_each(|field_name| builder.push_str(&format!("{}\t", field_name)));
+
+        builder.push_str("\n");
     }
 
     /// Formats a row as TSV and appends it to the builder with a trailing newline.
