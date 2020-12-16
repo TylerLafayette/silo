@@ -4,3 +4,21 @@
 
 /// The service of the database.
 pub mod service;
+
+/// Database config struct.
+pub mod config;
+
+/// Errors.
+pub mod errors;
+
+/// Utility functions for working with databases.
+mod db_utils;
+
+/// Internal models for representing database structures.
+mod models;
+
+/// Provides methods and structures for connecting to databases.
+pub mod connection;
+
+/// Test
+mod migrations;

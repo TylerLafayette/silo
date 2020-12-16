@@ -8,3 +8,7 @@ edition = "2018"
 
 [dependencies]
 oxidizer = "0.2.1"
+silo-core = { path = "../silo-core" }
+async-trait = "0.1.7"
+tokio = { version = "0.2", features = ["full"] }
+refinery = "0.3"
