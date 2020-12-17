@@ -1,5 +1,6 @@
 /// Groups multiple subjects together.
 #[derive(Debug)]
-struct Group {
-    id: i16,
+pub struct Group {
+    /// The group's unique ID.
+    pub id: i16,
 }

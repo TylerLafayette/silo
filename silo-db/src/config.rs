@@ -2,13 +2,13 @@
 #[derive(Debug)]
 pub struct DatabaseConfig {
     /// The username for the database.
-    pub databaseUsername: String,
+    pub database_username: String,
     /// The password for the database.
-    pub databasePassword: String,
+    pub database_password: String,
     /// The host of the database.
-    pub databaseHost: String,
+    pub database_host: String,
     /// The port of the database.
-    pub databasePort: String,
+    pub database_port: String,
     /// The name of the database.
-    pub databaseName: String,
+    pub database_name: String,
 }

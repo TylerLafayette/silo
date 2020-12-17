@@ -17,16 +17,16 @@ use silo_core::service::Service;
 #[tokio::main]
 async fn main() -> Result<(), String> {
     let db_config = DatabaseConfig {
-        databaseHost: String::from("localhost"),
-        databasePort: String::from("5432"),
-        databaseUsername: String::from("postgres"),
-        databasePassword: String::from("postgres"),
-        databaseName: String::from("silo"),
+        database_host: String::from("localhost"),
+        database_port: String::from("5432"),
+        database_username: String::from("postgres"),
+        database_password: String::from("postgres"),
+        database_name: String::from("silo"),
     };
 
-    println!("h");
-
     let conn = DbConnection::connect(&db_config).await.unwrap();
+
+    conn.migrate().await;
 
     let service = ServiceImpl::new(&conn);
 

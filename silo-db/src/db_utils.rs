@@ -4,10 +4,10 @@ use crate::config::DatabaseConfig;
 pub fn postgres_conn_str(config: &DatabaseConfig) -> String {
     format!(
         "postgres://{}:{}@{}:{}/{}",
-        config.databaseUsername,
-        config.databasePassword,
-        config.databaseHost,
-        config.databasePort,
-        config.databaseName
+        config.database_username,
+        config.database_password,
+        config.database_host,
+        config.database_port,
+        config.database_name,
     )
 }

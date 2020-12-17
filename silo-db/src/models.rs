@@ -27,3 +27,32 @@ impl From<&models::SubjectTrait> for SubjectTrait {
         }
     }
 }
+
+/// Contains information about a subject which can be connected with traits.
+#[derive(Entity, Default)]
+pub struct Subject {
+    #[primary_key]
+    pub id: i32,
+    #[relation(model = "Group", key = "id")]
+    pub group_id: i32,
+    pub age: i8,
+    pub length_of_stay: i16,
+}
+
+impl From<&models::Subject> for Subject {
+    fn from(item: &models::Subject) -> Self {
+        Self {
+            id: item.id,
+            group_id: item.group_id,
+            age: item.age,
+            length_of_stay: item.length_of_stay,
+        }
+    }
+}
+
+/// Group groups subjects for analysis.
+#[derive(Entity, Default)]
+pub struct Group {
+    #[primary_key]
+    pub id: i32,
+}
