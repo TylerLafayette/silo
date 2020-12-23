@@ -15,7 +15,11 @@ pub trait Service {
     async fn insert_subject_trait(
         &self,
         subject_trait: &models::SubjectTrait,
-    ) -> Result<i32, DatabaseError>;
+    ) -> Result<i16, DatabaseError>;
+    /// Inserts a Subject into the database.
+    async fn insert_subject(&self, subject: &models::Subject) -> Result<i16, DatabaseError>;
+    /// Inserts a Group into the database.
+    async fn insert_group(&self, group: &models::Group) -> Result<i16, DatabaseError>;
 }
 
 /// An implementation of the service itself.
@@ -35,10 +39,24 @@ impl<'a> Service for ServiceImpl<'a> {
     async fn insert_subject_trait(
         &self,
         subject_trait: &models::SubjectTrait,
-    ) -> Result<i32, DatabaseError> {
+    ) -> Result<i16, DatabaseError> {
         let mut st = db_models::SubjectTrait::from(subject_trait);
         match st.save(&self.conn.db).await {
             Ok(_) => Ok(st.id),
+            Err(_) => Err(DatabaseError("failed to insert".into())),
+        }
+    }
+    async fn insert_subject(&self, subject: &models::Subject) -> Result<i16, DatabaseError> {
+        let mut s = db_models::Subject::from(subject);
+        match s.save(&self.conn.db).await {
+            Ok(_) => Ok(s.id),
+            Err(_) => Err(DatabaseError("failed to insert".into())),
+        }
+    }
+    async fn insert_group(&self, group: &models::Group) -> Result<i16, DatabaseError> {
+        let mut g = db_models::Group::from(group);
+        match g.save(&self.conn.db).await {
+            Ok(_) => Ok(g.id),
             Err(_) => Err(DatabaseError("failed to insert".into())),
         }
     }

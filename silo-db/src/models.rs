@@ -7,11 +7,11 @@ use silo_core::models;
 pub struct SubjectTrait {
     /// The ID of the entity.
     #[primary_key]
-    pub id: i32,
+    pub id: i16,
 
     /// The ID of the parent, if one exists.
     #[relation(model = "SubjectTrait", key = "id")]
-    pub parent_id: i32,
+    pub parent_id: i16,
 
     /// The name of the trait.
     #[indexed]
@@ -32,9 +32,11 @@ impl From<&models::SubjectTrait> for SubjectTrait {
 #[derive(Entity, Default)]
 pub struct Subject {
     #[primary_key]
-    pub id: i32,
+    pub id: i16,
+
     #[relation(model = "Group", key = "id")]
-    pub group_id: i32,
+    pub group_id: i16,
+
     pub age: i8,
     pub length_of_stay: i16,
 }
@@ -54,5 +56,25 @@ impl From<&models::Subject> for Subject {
 #[derive(Entity, Default)]
 pub struct Group {
     #[primary_key]
-    pub id: i32,
+    pub id: i16,
+}
+
+impl From<&models::Group> for Group {
+    fn from(item: &models::Group) -> Self {
+        Self { id: item.id }
+    }
+}
+
+/// SubjectSubjectTrait acts as a join table for Subjects to
+/// SubjecTraits.
+#[derive(Entity, Default)]
+pub struct SubjectSubjectTrait {
+    #[primary_key]
+    pub id: i16,
+
+    #[relation(model = "Subject", key = "id")]
+    pub subject_id: i16,
+
+    #[relation(model = "SubjectTrait", key = "id")]
+    pub subject_trait_id: i16,
 }

@@ -3,9 +3,11 @@
 //! The CLI entrypoint for silo.
 //! silo initializes the silo_core service and runs it.
 
+use actix::prelude::*;
 use log::{error, info};
 use tokio::prelude::*;
 
+use silo_db::actor::*;
 use silo_db::config::DatabaseConfig;
 use silo_db::connection::Connection as DbConnection;
 use silo_db::service::{Service as DbServiceTrait, ServiceImpl};
@@ -25,27 +27,20 @@ async fn main() -> Result<(), String> {
     };
 
     let conn = DbConnection::connect(&db_config).await.unwrap();
+    let db_service = ServiceImpl::new(&conn);
 
-    conn.migrate().await;
+    conn.migrate()
+        .await
+        .or_else(|_| Err("failed to migrate db"))?;
 
-    let service = ServiceImpl::new(&conn);
-
-    let test_trait = SubjectTrait {
-        id: 0,
-        parent_id: 0,
-        trait_name: "test".into(),
+    // Start the Actix system.
+    let service = Service::new();
+    match service.run() {
+        Ok(_) => info!("Service exited gracefully"),
+        Err(e) => error!("Error starting service: {}", e),
     };
 
-    match service.insert_subject_trait(&test_trait).await {
-        Ok(id) => println!("Success, ID: {}", id),
-        Err(e) => println!("Failure: {}", e),
-    };
-
-    // let service = Service::new();
-    // match service.run() {
-    //     Ok(_) => info!("Service exited gracefully"),
-    //     Err(e) => error!("Error starting service: {}", e),
-    // };
+    // let addr = DbActor::new(&db_service).start();
 
     Ok(())
 }

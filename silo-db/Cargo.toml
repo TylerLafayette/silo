@@ -12,3 +12,4 @@ silo-core = { path = "../silo-core" }
 async-trait = "0.1.7"
 tokio = { version = "0.2", features = ["full"] }
 refinery = "0.3"
+actix = "0.10"

@@ -2,6 +2,9 @@
 
 //! Silo's core crate, containing an actor system and logging.
 
+/// The actor module which contains an Actix actor.
+pub mod actor;
+
 /// The service of the database.
 pub mod service;
 
