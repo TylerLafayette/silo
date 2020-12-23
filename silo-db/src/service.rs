@@ -10,7 +10,7 @@ use crate::models as db_models;
 
 /// A trait of methods implemented by the Service.
 #[async_trait]
-pub trait Service {
+pub trait Service: Sync + Send {
     /// Inserts a SubjectTrait into the database.
     async fn insert_subject_trait(
         &self,
@@ -23,19 +23,19 @@ pub trait Service {
 }
 
 /// An implementation of the service itself.
-pub struct ServiceImpl<'a> {
-    conn: &'a Connection,
+pub struct ServiceImpl {
+    conn: Box<Connection>,
 }
 
-impl<'a> ServiceImpl<'a> {
+impl ServiceImpl {
     /// Creates and returns a new ServiceImpl with the provided DatabaseConfig.
-    pub fn new(conn: &'a Connection) -> Self {
+    pub fn new(conn: Box<Connection>) -> Self {
         Self { conn }
     }
 }
 
 #[async_trait]
-impl<'a> Service for ServiceImpl<'a> {
+impl Service for ServiceImpl {
     async fn insert_subject_trait(
         &self,
         subject_trait: &models::SubjectTrait,

@@ -27,7 +27,10 @@ impl Connection {
 
         match self.db.migrate(runner).await {
             Ok(_) => Ok(()),
-            Err(_) => Err(DatabaseError("error running migrations".into())),
+            Err(e) => {
+                println!("{:?}", e);
+                Err(DatabaseError("error running migrations".into()))
+            }
         }
     }
 }
