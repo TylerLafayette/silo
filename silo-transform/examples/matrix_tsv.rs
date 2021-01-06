@@ -12,7 +12,7 @@ fn main() {
         .with_binary_field("cough")
         .build();
 
-    let mut int_fields: HashMap<String, i16> = HashMap::new();
+    let mut int_fields: HashMap<String, i32> = HashMap::new();
     int_fields.insert("sex".into(), 0);
     int_fields.insert("length_of_stay".into(), 123);
     int_fields.insert("age".into(), 24);

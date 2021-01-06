@@ -1,3 +1,4 @@
+#![feature(async_closure)]
 #![deny(missing_docs)]
 
 //! Silo's core crate, containing an actor system and logging.

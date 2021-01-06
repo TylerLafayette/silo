@@ -46,7 +46,7 @@ async fn main() -> Result<(), String> {
 
     let rest_service = api::RestService::new(Box::new(db_service));
 
-    api::build_and_serve_http(rest_service);
+    api::build_and_serve_http(rest_service).await;
 
     // let addr = DbActor::new(&db_service).start();
 

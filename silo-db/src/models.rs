@@ -7,11 +7,11 @@ use silo_core::models;
 pub struct SubjectTrait {
     /// The ID of the entity.
     #[primary_key]
-    pub id: i16,
+    pub id: i32,
 
     /// The ID of the parent, if one exists.
     #[relation(model = "SubjectTrait", key = "id")]
-    pub parent_id: i16,
+    pub parent_id: i32,
 
     /// The name of the trait.
     #[indexed]
@@ -32,12 +32,12 @@ impl From<&models::SubjectTrait> for SubjectTrait {
 #[derive(Entity, Default)]
 pub struct Subject {
     #[primary_key]
-    pub id: i16,
+    pub id: i32,
 
     #[relation(model = "Group", key = "id")]
-    pub group_id: i16,
+    pub group_id: i32,
 
-    pub age: i8,
+    pub age: i16,
     pub length_of_stay: i16,
 }
 
@@ -54,9 +54,10 @@ impl From<&models::Subject> for Subject {
 
 /// Group groups subjects for analysis.
 #[derive(Entity, Default)]
+#[entity(table_name = "subject_group")]
 pub struct Group {
     #[primary_key]
-    pub id: i16,
+    pub id: i32,
 }
 
 impl From<&models::Group> for Group {
@@ -70,11 +71,11 @@ impl From<&models::Group> for Group {
 #[derive(Entity, Default)]
 pub struct SubjectSubjectTrait {
     #[primary_key]
-    pub id: i16,
+    pub id: i32,
 
     #[relation(model = "Subject", key = "id")]
-    pub subject_id: i16,
+    pub subject_id: i32,
 
     #[relation(model = "SubjectTrait", key = "id")]
-    pub subject_trait_id: i16,
+    pub subject_trait_id: i32,
 }
