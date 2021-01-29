@@ -2,6 +2,7 @@ use silo_core::models;
 use silo_db;
 use silo_transform::matrix::*;
 
+use actix_cors::Cors;
 use actix_rt;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use futures;
@@ -30,6 +31,26 @@ async fn groups_post(service: web::Data<Arc<RestService>>) -> impl Responder {
         .await
     {
         Ok(id) => HttpResponse::Ok().json(models::Group { id }),
+        Err(e) => {
+            println!("{:?}", e);
+            HttpResponse::BadRequest().json(ApiError {
+                error: "error.db.generic".into(),
+                message: format!("{:?}", e),
+            })
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GroupsResponse {
+    pub groups: Vec<models::Group>,
+}
+
+#[get("/groups")]
+async fn groups_get(service: web::Data<Arc<RestService>>) -> impl Responder {
+    match service.db_service.get_groups().await {
+        Ok(groups) => HttpResponse::Ok().json(GroupsResponse { groups }),
         Err(e) => {
             println!("{:?}", e);
             HttpResponse::BadRequest().json(ApiError {
@@ -103,6 +124,25 @@ pub struct ApiError {
 pub struct InsertTrait {
     pub parent_id: i32,
     pub trait_name: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct TraitsResponse {
+    pub traits: Vec<models::SubjectTrait>,
+}
+
+#[get("/traits")]
+async fn traits_get(service: web::Data<Arc<RestService>>) -> impl Responder {
+    match service.db_service.get_traits().await {
+        Ok(traits) => HttpResponse::Ok().json(TraitsResponse { traits }),
+        Err(e) => {
+            println!("{:?}", e);
+            HttpResponse::BadRequest().json(ApiError {
+                error: "error.db.generic".into(),
+                message: format!("{:?}", e),
+            })
+        }
+    }
 }
 
 #[post("/traits")]
@@ -300,8 +340,10 @@ pub async fn build_and_serve_http(service: RestService) -> Result<(), Box<dyn st
     let server_res = HttpServer::new(move || {
         App::new().data(service_arc.clone()).service(
             web::scope("/api/v1")
+                .service(traits_get)
                 .service(traits_post)
                 .service(groups_post)
+                .service(groups_get)
                 .service(groups_generate_matrix)
                 .service(groups_subjects_post)
                 .service(groups_subjects_get)

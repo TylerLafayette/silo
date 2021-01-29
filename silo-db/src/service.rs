@@ -26,6 +26,10 @@ pub trait Service: Sync + Send {
         subject_id: i32,
         subject_trait_id: i32,
     ) -> Result<i32, DatabaseError>;
+    /// Finds all traits.
+    async fn get_traits(&self) -> Result<Vec<models::SubjectTrait>, DatabaseError>;
+    /// Finds all groups.
+    async fn get_groups(&self) -> Result<Vec<models::Group>, DatabaseError>;
     /// Finds all subject traits for a subject by ID.
     async fn find_subject_trats_by_subject_id(
         &self,
@@ -104,6 +108,26 @@ impl Service for ServiceImpl {
             Ok(_) => Ok(sst.id),
             Err(e) => Err(DatabaseError(format!("{:?}", e))),
         }
+    }
+    async fn get_traits(&self) -> Result<Vec<models::SubjectTrait>, DatabaseError> {
+        let t = db_models::SubjectTrait::find(&self.conn.db, "id > 0", &[])
+            .await
+            .or_else(|e| Err(DatabaseError(format!("{:?}", e))))?;
+
+        Ok(t.iter()
+            .map(|x| models::SubjectTrait {
+                id: x.id,
+                parent_id: x.parent_id,
+                trait_name: x.trait_name.clone(),
+            })
+            .collect())
+    }
+    async fn get_groups(&self) -> Result<Vec<models::Group>, DatabaseError> {
+        let g = db_models::Group::find(&self.conn.db, "id > 0", &[])
+            .await
+            .or_else(|e| Err(DatabaseError(format!("{:?}", e))))?;
+
+        Ok(g.iter().map(|x| models::Group { id: x.id }).collect())
     }
     async fn find_subject_trats_by_subject_id(
         &self,
