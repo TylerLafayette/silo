@@ -7,9 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-oxidizer = "0.2.1"
+oxidizer =  { git = "https://github.com/TylerLafayette/oxidizer", branch = "main" }
+serde = "1.0.118"
 silo-core = { path = "../silo-core" }
 async-trait = "0.1.7"
 tokio = { version = "0.2", features = ["full"] }
-refinery = "0.3"
+refinery = { git = "https://github.com/TylerLafayette/refinery", branch = "release-0.4" } 
 actix = "0.10"
