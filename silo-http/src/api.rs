@@ -4,7 +4,7 @@ use silo_transform::matrix::*;
 
 use actix_cors::Cors;
 use actix_rt;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{delete, get, post, web, App, HttpResponse, HttpServer, Responder};
 use futures;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -83,6 +83,28 @@ async fn groups_subjects_post(
 
     match service.db_service.insert_subject(&s).await {
         Ok(id) => HttpResponse::Ok().json(models::Subject { id, ..s }),
+        Err(e) => {
+            println!("{:?}", e);
+            HttpResponse::BadRequest().json(ApiError {
+                error: "error.db.generic".into(),
+                message: format!("{:?}", e),
+            })
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct GenericSuccessResponse {
+    pub success: bool,
+}
+
+#[delete("/groups/{id}")]
+async fn groups_delete(
+    service: web::Data<Arc<RestService>>,
+    web::Path(id): web::Path<i32>,
+) -> impl Responder {
+    match service.db_service.delete_group(id).await {
+        Ok(()) => HttpResponse::Ok().json(GenericSuccessResponse { success: true }),
         Err(e) => {
             println!("{:?}", e);
             HttpResponse::BadRequest().json(ApiError {
@@ -344,6 +366,7 @@ pub async fn build_and_serve_http(service: RestService) -> Result<(), Box<dyn st
                 .service(traits_post)
                 .service(groups_post)
                 .service(groups_get)
+                .service(groups_delete)
                 .service(groups_generate_matrix)
                 .service(groups_subjects_post)
                 .service(groups_subjects_get)

@@ -20,6 +20,8 @@ pub trait Service: Sync + Send {
     async fn insert_subject(&self, subject: &models::Subject) -> Result<i32, DatabaseError>;
     /// Inserts a Group into the database.
     async fn insert_group(&self, group: &models::Group) -> Result<i32, DatabaseError>;
+    /// Deletes a group from the database.
+    async fn delete_group(&self, id: i32) -> Result<(), DatabaseError>;
     /// Adds a SubjectTrait to a Subject by the Subject and Trait IDs.
     async fn insert_subject_subject_trait(
         &self,
@@ -91,6 +93,16 @@ impl Service for ServiceImpl {
         let mut g = db_models::Group::from(group);
         match g.save(&self.conn.db).await {
             Ok(_) => Ok(g.id),
+            Err(e) => Err(DatabaseError(format!("{:?}", e))),
+        }
+    }
+    async fn delete_group(&self, id: i32) -> Result<(), DatabaseError> {
+        match db_models::Group::first(&self.conn.db, "id = $1", &[&id]).await {
+            Ok(Some(mut g)) => {
+                g.delete(&self.conn.db).await.unwrap();
+                Ok(())
+            }
+            Ok(None) => Ok(()),
             Err(e) => Err(DatabaseError(format!("{:?}", e))),
         }
     }
