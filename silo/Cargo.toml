@@ -8,4 +8,8 @@ edition = "2018"
 
 [dependencies]
 silo-core = { path = "../silo-core" }
+silo-db = { path = "../silo-db" }
+silo-http = { path = "../silo-http" }
+actix = "0.10"
+tokio = { version = "0.2", features = ["full"] }
 log = "0.4"

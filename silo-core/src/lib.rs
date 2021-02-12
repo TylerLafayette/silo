@@ -7,3 +7,6 @@ mod logging;
 
 /// The service module.
 pub mod service;
+
+/// The models module.
+pub mod models;

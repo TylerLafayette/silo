@@ -14,12 +14,12 @@ pub enum MatrixOutputType {
 #[derive(Clone)]
 pub struct MatrixTransformerRow {
     binary_fields: HashMap<String, bool>,
-    int_fields: HashMap<String, i16>,
+    int_fields: HashMap<String, i32>,
 }
 
 impl MatrixTransformerRow {
     /// Creates and returns a new MatrixTransformerRow.
-    pub fn new(binary_fields: HashMap<String, bool>, int_fields: HashMap<String, i16>) -> Self {
+    pub fn new(binary_fields: HashMap<String, bool>, int_fields: HashMap<String, i32>) -> Self {
         Self {
             binary_fields,
             int_fields,
@@ -164,7 +164,7 @@ mod tests {
             .output_as(MatrixOutputType::Tsv)
             .build();
 
-        let mut int_fields: HashMap<String, i16> = HashMap::new();
+        let mut int_fields: HashMap<String, i32> = HashMap::new();
         int_fields.insert("age".into(), 24);
 
         let mut binary_fields: HashMap<String, bool> = HashMap::new();
