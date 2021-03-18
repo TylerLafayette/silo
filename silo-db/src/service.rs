@@ -54,6 +54,10 @@ pub trait Service: Sync + Send {
         &self,
         trait_name: &str,
     ) -> Result<Option<models::SubjectTrait>, DatabaseError>;
+    /// Finds all jobs.
+    async fn get_jobs(&self) -> Result<Vec<models::Job>, DatabaseError>;
+    /// Finds all results for a given Job by ID.
+    async fn get_job_results(&self, id: i32) -> Result<Vec<models::JobResult>, DatabaseError>;
 }
 
 /// An implementation of the service itself.
@@ -233,5 +237,19 @@ impl Service for ServiceImpl {
             parent_id: s.parent_id,
             trait_name: s.trait_name,
         }))
+    }
+    async fn get_jobs(&self) -> Result<Vec<models::Job>, DatabaseError> {
+        let g = db_models::Job::find(&self.conn.db, "id > 0", &[])
+            .await
+            .or_else(|e| Err(DatabaseError(format!("{:?}", e))))?;
+
+        Ok(g.iter().map(|j| j.into()).collect())
+    }
+    async fn get_job_results(&self, id: i32) -> Result<Vec<models::JobResult>, DatabaseError> {
+        let g = db_models::JobResult::find(&self.conn.db, "job_id = $1", &[&id])
+            .await
+            .or_else(|e| Err(DatabaseError(format!("{:?}", e))))?;
+
+        Ok(g.iter().map(|j| j.into()).collect())
     }
 }

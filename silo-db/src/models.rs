@@ -79,3 +79,56 @@ pub struct SubjectSubjectTrait {
     #[relation(model = "SubjectTrait", key = "id")]
     pub subject_trait_id: i32,
 }
+
+/// Represents a runnable job.
+#[derive(Entity)]
+pub struct Job {
+    /// The job's unique ID.
+    #[primary_key]
+    pub id: i32,
+
+    /// The job's raw code.
+    pub code_raw: String,
+
+    /// The job's status.
+    pub status: i16,
+}
+
+impl Into<models::Job> for &Job {
+    fn into(self) -> models::Job {
+        models::Job {
+            id: self.id,
+            code_raw: self.code_raw.clone(),
+            status: models::JobStatus::from(self.status),
+        }
+    }
+}
+
+/// Represents the result of running a Job.
+#[derive(Entity)]
+pub struct JobResult {
+    /// The job result's unique ID.
+    #[primary_key]
+    pub id: i32,
+
+    /// The idea of the job the result is attached to.
+    #[relation(model = "Job", key = "id")]
+    pub job_id: i32,
+
+    /// The job's raw code.
+    pub error: bool,
+
+    /// The result as a single line.
+    pub single_line: String,
+}
+
+impl Into<models::JobResult> for &JobResult {
+    fn into(self) -> models::JobResult {
+        models::JobResult {
+            id: self.id,
+            job_id: self.job_id,
+            error: self.error,
+            single_line: self.single_line.clone(),
+        }
+    }
+}

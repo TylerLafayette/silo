@@ -14,5 +14,6 @@ serde = "1.0.118"
 futures = "0.3.8"
 tokio = { version = "0.2", features = ["full"] }
 silo-core = { path = "../silo-core" }
+silo-runner = { path = "../silo-runner" }
 silo-transform = { path = "../silo-transform" }
 silo-db = { path = "../silo-db" }

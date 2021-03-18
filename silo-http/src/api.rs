@@ -1,5 +1,6 @@
 use silo_core::models;
 use silo_db;
+use silo_runner::python::PythonExecutor;
 use silo_transform::matrix::*;
 
 use actix_cors::Cors;
@@ -327,6 +328,75 @@ async fn groups_generate_matrix(
     HttpResponse::Ok().body(matrix)
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct JobsResponse {
+    jobs: Vec<models::Job>,
+}
+
+#[get("/jobs")]
+async fn jobs_get(service: web::Data<Arc<RestService>>) -> impl Responder {
+    match service.db_service.get_jobs().await {
+        Ok(jobs) => HttpResponse::Ok().json(JobsResponse { jobs }),
+        Err(e) => {
+            println!("{:?}", e);
+            HttpResponse::BadRequest().json(ApiError {
+                error: "error.db.generic".into(),
+                message: format!("{:?}", e),
+            })
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct JobResultsResponse {
+    results: Vec<models::JobResult>,
+}
+
+#[get("/jobs/{id}/results")]
+async fn jobs_results_get(
+    service: web::Data<Arc<RestService>>,
+    web::Path(id): web::Path<i32>,
+) -> impl Responder {
+    match service.db_service.get_job_results(id).await {
+        Ok(results) => HttpResponse::Ok().json(JobResultsResponse { results }),
+        Err(e) => {
+            println!("{:?}", e);
+            HttpResponse::BadRequest().json(ApiError {
+                error: "error.db.generic".into(),
+                message: format!("{:?}", e),
+            })
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct JobInput {
+    code: String,
+}
+
+#[derive(Serialize)]
+pub struct JobOutput<'a> {
+    output: &'a str,
+}
+
+#[post("/jobs/{id}/run")]
+async fn jobs_run_post(
+    service: web::Data<Arc<RestService>>,
+    web::Path(id): web::Path<i32>,
+) -> impl Responder {
+    let response = PythonExecutor::new()
+        .execute_sync(r#"
+import requests
+r = requests.get("http://localhost:3030/api/v1/groups/24/generate/matrix?traits=cough,wet_cough&attributes=age,length_of_stay&fields=true")
+ret = r.text
+            "#)
+        .unwrap();
+
+    HttpResponse::Ok().json(JobOutput { output: &*response })
+}
+
 pub async fn build_and_serve_http(service: RestService) -> Result<(), Box<dyn std::error::Error>> {
     let local = tokio::task::LocalSet::new();
     let sys = actix_rt::System::run_in_tokio("server", &local);
@@ -348,7 +418,10 @@ pub async fn build_and_serve_http(service: RestService) -> Result<(), Box<dyn st
                 .service(groups_subjects_post)
                 .service(groups_subjects_get)
                 .service(groups_subjects_traits_post)
-                .service(groups_subjects_traits_get),
+                .service(groups_subjects_traits_get)
+                .service(jobs_get)
+                .service(jobs_results_get)
+                .service(jobs_run_post),
         )
     })
     .bind(address)?
